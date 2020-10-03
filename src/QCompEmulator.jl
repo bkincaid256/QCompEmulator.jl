@@ -1,5 +1,7 @@
 module QCompEmulator
 
-# Write your package code here.
+include("extra_functions.jl")
+
+export my_f
 
 end

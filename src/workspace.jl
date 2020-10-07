@@ -12,7 +12,7 @@ end
 
 function makeregister(nqubits::Int)
     #function for generating a quantum register of qubits
-    zerovec = @SVector [1.0+0.0*im, 0.0+0.0*im]
+    zerovec = [1.0+0.0*im, 0.0+0.0*im]
     return [Qubit(i, copy(zerovec)) for i ∈ 1:nqubits]
 end
 
@@ -91,7 +91,10 @@ function ControlX!(ψₜ::Qubit,ψc::Qubit)
 end
 
 function ControlX!(C::Circuit,target::Integer,control::Integer)
-    
+
+    if (target==control)
+        error("Target qubit and control qubit must be Different!")
+    end
     
     if target > control
         cX = @SMatrix [1.0 0.0 0.0 0.0
@@ -108,8 +111,9 @@ function ControlX!(C::Circuit,target::Integer,control::Integer)
     end
         a = length(C.qreg)
         M = Array{Float64}(undef,2,2)
-        if (target-control) == 1    
+        if abs(target-control) == 1    
 
+            bit = min(target,control)
             for i ∈ 0:a-2
                 if (i == 0) && (control-1 == 0)
                     M = kron(I(1),cX)
@@ -117,21 +121,6 @@ function ControlX!(C::Circuit,target::Integer,control::Integer)
                     M = kron(I(1),I(2))
                 else
                     if (i == control-1)
-                        M = kron(cX,M)
-                    else
-                        M = kron(I(2),M)
-                    end
-                end
-            end
-        elseif (control-target) == 1    
-
-            for i ∈ 0:a-2
-                if (i == 0) && (target-1 == 0)
-                    M = kron(I(1),cX)
-                elseif (i == 0) && (target-1 !== 0)
-                    M = kron(I(1),I(2))
-                else
-                    if (i == target-1)
                         M = kron(cX,M)
                     else
                         M = kron(I(2),M)

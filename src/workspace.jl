@@ -7,7 +7,7 @@ end
 
 mutable struct Circuit
     qreg::Array{Qubit,1}
-    gates::Array{Matrix}
+    gates::Array{Array{Complex{Float64},2},1}
 end
 
 function makeregister(nqubits::Int)
@@ -90,12 +90,12 @@ function ControlX!(ψₜ::Qubit,ψc::Qubit)
     return ket
 end
 
-function ControlX!(C::Circuit,target::Integer,control::Integer)
+function ControlX!(C::Circuit,control::Integer,target::Integer)
 
     if (target==control)
         error("Target qubit and control qubit must be Different!")
     end
-    
+
     if target > control
         cX = @SMatrix [1.0 0.0 0.0 0.0
                        0.0 0.0 0.0 1.0
@@ -111,16 +111,17 @@ function ControlX!(C::Circuit,target::Integer,control::Integer)
     end
         a = length(C.qreg)
         M = Array{Float64}(undef,2,2)
+        G = Matrix{Float64}[]
         if abs(target-control) == 1    
 
             bit = min(target,control)
             for i ∈ 0:a-2
-                if (i == 0) && (control-1 == 0)
+                if (i == 0) && (bit-1 == 0)
                     M = kron(I(1),cX)
-                elseif (i == 0) && (control-1 !== 0)
+                elseif (i == 0) && (bit-1 !== 0)
                     M = kron(I(1),I(2))
                 else
-                    if (i == control-1)
+                    if (i == bit-1)
                         M = kron(cX,M)
                     else
                         M = kron(I(2),M)
@@ -132,4 +133,22 @@ function ControlX!(C::Circuit,target::Integer,control::Integer)
             ControlX!(C,target,control+1)
         end
     return push!(C.gates, M)
+end
+
+function Run_circ(C::Circuit)
+
+    maxiter = length(C.gates::Array{Array{Complex{Float64},2},1})
+    maxbit = length(C.qreg)
+
+    M = convert(Matrix{ComplexF64},I(size(C.gates[begin])[1]))
+    ket = copy(C.qreg[1].vec)
+    for i ∈ 2:maxbit
+    ket = kron(C.qreg[i].vec,ket)
+    end
+
+    for i ∈ 1:maxiter
+        M .= C.gates[i]*M
+    end
+
+    return M*ket
 end

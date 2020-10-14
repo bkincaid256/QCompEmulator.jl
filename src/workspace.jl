@@ -1,4 +1,4 @@
-using  LinearAlgebra, StaticArrays, BenchmarkTools
+using  LinearAlgebra, SparseArrays, StaticArrays, BenchmarkTools
 
 mutable struct Qubit #type for holding qubit information
     bitpos::Int
@@ -24,27 +24,27 @@ function Hadamard!(ψ::Qubit)
     return ψ
 end
 
-function Hadamard!(C::Circuit, bitpos::Integer)
+function Hadamard!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
     a = length(C.qreg)
-    H = @SMatrix [1/sqrt(2)  1/sqrt(2)
-                  1/sqrt(2) -1/sqrt(2)] 
-    M = Array{Float64}(undef,2,2)
+    H =  sparse([1/sqrt(2)  1/sqrt(2)
+                 1/sqrt(2) -1/sqrt(2)]) 
+    M = spzeros(2,2)
     for  i ∈ 0:a-1
         if (i == 0) && (i !== bitpos-1)
-            copy!(M,I(2))
+            copy!(M,sparse(I(2)))
         elseif (i == 0) && (i == bitpos-1)
             copy!(M,H)
         else  
             if (i == bitpos-1)
                 M = kron(H,M)
             else
-                M = kron(I(2),M)
+                M = kron(sparse(I(2)),M)
             end
         end
     end
-   return push!(C.gates, M)
+   return #push!(C.gates, M)
 end
 
 
@@ -56,7 +56,7 @@ function Xgate!(ψ::Qubit)
     return ψ
 end
 
-function Xgate!(C::Circuit, bitpos::Integer)
+function Xgate!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
     a = length(C.qreg)
@@ -76,63 +76,64 @@ function Xgate!(C::Circuit, bitpos::Integer)
             end
         end
     end
-   return push!(C.gates, M)
+   return #push!(C.gates, M)
 end
 
-function ControlX!(ψₜ::Qubit,ψc::Qubit)
-    
-    cX = @SMatrix [1.0 0.0 0.0 0.0
-                   0.0 0.0 0.0 1.0
-                   0.0 0.0 1.0 0.0
-                   0.0 1.0 0.0 0.0]
-    ket = kron(ψₜ.vec, ψc.vec)
-    ket .= cX*ket     
-    return ket
-end
+function CX!(C::Circuit,control::Int,target::Int)
 
-function ControlX!(C::Circuit,control::Integer,target::Integer)
+    X = sparse([0.0+0.0*im 1.0+0.0*im;
+                1.0+0.0*im 0.0+0.0*im])
+
+    a = length(C.qreg)
 
     if (target==control)
         error("Target qubit and control qubit must be Different!")
+    elseif (target>a) || (control>a)
+        error("The target and control qubit must be within the size of the register!")
     end
 
-    if target > control
-        cX = @SMatrix [1.0 0.0 0.0 0.0
-                       0.0 0.0 0.0 1.0
-                       0.0 0.0 1.0 0.0
-                       0.0 1.0 0.0 0.0]
+    M1 = spzeros(ComplexF64,2,2)
+    M2 = copy(M1)
+    I2 = sparse(convert(Matrix{ComplexF64},I(2)))
 
-    else
-        cX = @SMatrix [1.0 0.0 0.0 0.0
-                       0.0 1.0 0.0 0.0
-                       0.0 0.0 0.0 1.0
-                       0.0 0.0 1.0 0.0]
+    conket1 = sparse([0.0+0.0*im 0.0+0.0*im;
+                      0.0+0.0*im 1.0+0.0*im])
+    conket0 = sparse([1.0+0.0*im 0.0+0.0*im
+                      0.0+0.0*im 0.0+0.0*im])
 
-    end
-        a = length(C.qreg)
-        M = Array{Float64}(undef,2,2)
-        G = Matrix{Float64}[]
-        if abs(target-control) == 1    
+    for i ∈ 0:a-1
 
-            bit = min(target,control)
-            for i ∈ 0:a-2
-                if (i == 0) && (bit-1 == 0)
-                    M = kron(I(1),cX)
-                elseif (i == 0) && (bit-1 !== 0)
-                    M = kron(I(1),I(2))
-                else
-                    if (i == bit-1)
-                        M = kron(cX,M)
-                    else
-                        M = kron(I(2),M)
-                    end
-                end
-            end
+        if (i==0==control-1)
+            M1 = conket1
+        elseif (i==0==target-1)
+            M1 = X
         else
-            ControlX!(C,target-1,control)
-            ControlX!(C,target,control+1)
+            if (i==control-1)
+                M1 = kron(conket1,M1)
+            elseif (i==target-1)
+                M1 = kron(X,M1)
+            else
+                M1 = kron(I2,M1)
+            end
         end
-    return push!(C.gates, M)
+    end
+
+    for i ∈ 0:a-1
+
+        if (i==0==control-1)
+            M2 = conket0
+        elseif (i==0!==control-1)
+            M2 = I2
+        else
+            if (i==control-1)
+                M2 = kron(conket0,M2)
+            else
+                M2 = kron(I2,M2)
+            end
+        end
+    end
+    return #push!(C.gates,(@view(M1)+@view(M2)))
+
 end
 
 function Run_circ(C::Circuit)
@@ -151,4 +152,8 @@ function Run_circ(C::Circuit)
     end
 
     return M*ket
+end
+
+function shots(C::Circuit, nshots::Int)
+    a    
 end

@@ -28,7 +28,7 @@ function H!(C::Circuit, bitpos::Int)
     a = length(C.qreg)
     H =  sparse([1/sqrt(2)+0.0*im  1/sqrt(2)+0.0*im
                  1/sqrt(2)+0.0*im -1/sqrt(2)+0.0*im]) 
-    M = spzeros(2,2)
+    M = similar(H)
     I2 = sparse(I*(1.0+0.0*im),2,2)
     for  i ∈ 1:a
         if (i == 1) && (i !== bitpos)
@@ -58,17 +58,17 @@ function Ugate!(C::Circuit, U::AbstractArray{ComplexF64,2}, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
     a = length(C.qreg)
-    U = sparse(U)
-    M = similar(U)
+    Uf = sparse(U)
+    M = similar(Uf)
     I2 = sparse(I*(1.0+0.0*im),2,2)
     for  i ∈ 1:a
         if (i == 1) && (i !== bitpos)
             copy!(M,I2)
         elseif (i == 1) && (i == bitpos)
-            copy!(M,U)
+            copy!(M,Uf)
         else  
             if (i == bitpos)
-                M = kron(U,M)
+                M = kron(Uf,M)
             else
                 M = kron(I2,M)
             end
@@ -473,5 +473,7 @@ function Run_circ(C::Circuit)
 end
 
 function shots(C::Circuit, nshots::Int)
-    a    
+    
+    finalket = Run_circ(C)
+
 end

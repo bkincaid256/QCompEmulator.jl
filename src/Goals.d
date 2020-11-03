@@ -1,6 +1,6 @@
-1.(Done) Make the CX function able to work on any two qubits in the circuit.
-2. From the remade CX function create the other core gates recquired to make the more interesting algorithms.
-3. Make a true measurement function. This will determine the state of the given qubit. If the 
+1. From the remade CX function create the other core gates recquired to make the more interesting algorithms.
+2. Make a true measurement function. This will determine the state of the given qubit. If the 
 state was entangled prior to measurement, then the other qubits will be known at that time.
-4. To assist with point 3, try to make a Tr over subsystem algorithm that is capable of removing
-portions of the Hilbert space and generating the corresponding kets.
+3. Try and make versions of the gates that operate directly on the involved qubits. Possibly copy the result of the control qubits to the targets.
+If done properly, this will effectively remove the scaling issue the current version has as it will remove the need for the gate matrices to be large.
+Should be able to remake the final statevector from the separate qubits in their particular superpositions. This would more closely emulate the actual devices.

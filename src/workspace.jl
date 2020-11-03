@@ -1,4 +1,5 @@
-using  LinearAlgebra, SparseArrays, StaticArrays, BenchmarkTools
+###########Importing Libraries and Defining Structs############
+using  LinearAlgebra, SparseArrays, StaticArrays, BenchmarkTools, Base
 
 mutable struct Qubit #type for holding qubit information
     bitpos::Int
@@ -20,6 +21,27 @@ function makeregister(nqubits::Int)
     zerovec = [1.0+0.0*im, 0.0+0.0*im]
     return [Qubit(i, copy(zerovec)) for i ∈ 1:nqubits]
 end
+
+function Base.max(set::AbstractRange)
+    if set[1]<set[end]
+        return set[end]
+    elseif set[1]>set[end]
+        return set[1]
+    else
+        return set[1]
+    end
+end
+
+function Base.min(set::AbstractRange)
+    if set[1]<set[end]
+        return set[1]
+    elseif set[1]>set[end]
+        return set[end]
+    else
+        return set[1]
+    end
+end
+
 ######Single qubit gates ###########
 
 function H!(C::Circuit, bitpos::Int)
@@ -316,8 +338,8 @@ function CX!(C::Circuit,control::Int,targets::AbstractVector{Int})
         error("The target and control qubits must all lie within the register!")
     end
 
-    for i in 1:b
-        CX!(C,control,targets[i])
+    for i in targets
+        CX!(C,control,i)
     end
 end
 
@@ -328,8 +350,8 @@ function CX!(C::Circuit,controls::AbstractVector{Int},target::Int)
         error("The target and control qubits must all lie within the register!")
     end
 
-    for i in 1:b
-        CX!(C,controls[i],target)
+    for i in controls
+        CX!(C,i,target)
     end
 end
 

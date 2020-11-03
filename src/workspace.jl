@@ -26,6 +26,9 @@ function H!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
     a = length(C.qreg)
+    if (bitpos>a) || (bitpos<=0)
+        error("The bit specified must be within the register of the circuit!")
+    end
     H =  sparse([1/sqrt(2)+0.0*im  1/sqrt(2)+0.0*im
                  1/sqrt(2)+0.0*im -1/sqrt(2)+0.0*im]) 
     M = similar(H)
@@ -58,6 +61,9 @@ function Ugate!(C::Circuit, U::AbstractArray{ComplexF64,2}, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
     a = length(C.qreg)
+    if (bitpos>a) || (bitpos<=0)
+        error("The bit specified must be within the register of the circuit!")
+    end
     Uf = sparse(U)
     M = similar(Uf)
     I2 = sparse(I*(1.0+0.0*im),2,2)
@@ -89,6 +95,9 @@ function T!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
     a = length(C.qreg)
+    if (bitpos>a) || (bitpos<=0)
+        error("The bit specified must be within the register of the circuit!")
+    end
     T = sparse([1.0+0.0*im  0.0+0.0*im
                 0.0+0.0*im  exp(im*π/4)]) 
     M = similar(T)
@@ -122,6 +131,9 @@ function X!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
     a = length(C.qreg)
+    if (bitpos>a) || (bitpos<=0)
+        error("The bit specified must be within the register of the circuit!")
+    end
     X = sparse([0.0+0.0*im  1.0+0.0*im
                 1.0+0.0*im  0.0+0.0*im]) 
     M = similar(X)
@@ -154,6 +166,9 @@ function Y!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
     a = length(C.qreg)
+    if (bitpos>a) || (bitpos<=0)
+        error("The bit specified must be within the register of the circuit!")
+    end
     Y = sparse([0.0+0.0*im  0.0-1.0*im
                 0.0+1.0*im  0.0+0.0*im]) 
     M = similar(Y)
@@ -186,6 +201,9 @@ function Z!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
     a = length(C.qreg)
+    if (bitpos>a) || (bitpos<=0)
+        error("The bit specified must be within the register of the circuit!")
+    end
     Z = sparse([1.0+0.0*im  0.0+0.0*im
                 0.0+0.0*im -1.0+0.0*im]) 
     M = similar(Z)
@@ -224,7 +242,7 @@ function CX!(C::Circuit,control::Int,target::Int)
 
     if (target==control)
         error("Target qubit and control qubit must be Different!")
-    elseif (target>a) || (control>a)
+    elseif ((target>a) || (control>a)) || ((target<=0) || (control<=0)) 
         error("The target and control qubit must be within the size of the register!")
     end
 
@@ -278,6 +296,11 @@ end
 
 function Swap!(C::Circuit,b1::Int,b2::Int)
     #quick and dirty implmentation of Swap Gate
+    a = length(C.qreg)
+    if b1==b2
+        error("This ins't really a swap, you just tried to swap a qubit with itself!")
+    elseif ((b1>a) || (b2>a)) || ((b1<=0) || (b2<=0))
+        error("Both bits must be within the size of the register!")
     CX!(C,b2,b1)
     CX!(C,b1,b2)
     CX!(C,b2,b1)
@@ -292,7 +315,7 @@ function CZ!(C::Circuit,control::Int,target::Int)
 
     if (target==control)
         error("Target qubit and control qubit must be Different!")
-    elseif (target>a) || (control>a)
+    elseif ((target>a) || (control>a)) || ((target<=0) || (control<=0)) 
         error("The target and control qubit must be within the size of the register!")
     end
 

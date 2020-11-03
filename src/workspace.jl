@@ -294,6 +294,45 @@ function CX!(C::Circuit,control::Int,target::Int)
 
 end
 
+function CX!(C::Circuit,controls::AbstractVector{Int},targets::AbstractVector{Int})
+    #convenience method for doing mutliple CX operations at a time.
+    a = length(C.qreg)
+    b = length(controls)
+    if length(targets)!==b
+        error("The set of controls and targets must be the same length or the operation is ambiguous.")
+    elseif ((max(controls)>a) || (max(targets)>a)) || ((min(controls)<=0) || (min(targets)<=0))
+        error("The target and control qubits must all lie within the register!")
+    end
+
+    for i in 1:b
+        CX!(C,controls[i],targets[i])
+    end
+end
+
+function CX!(C::Circuit,control::Int,targets::AbstractVector{Int})
+    #convenience method for doing mutliple CX operations at a time.
+    a = length(C.qreg)
+    if ((control>a) || (max(targets)>a)) || ((control<=0) || (min(targets)<=0))
+        error("The target and control qubits must all lie within the register!")
+    end
+
+    for i in 1:b
+        CX!(C,control,targets[i])
+    end
+end
+
+function CX!(C::Circuit,controls::AbstractVector{Int},target::Int)
+    #convenience method for doing mutliple CX operations at a time.
+    a = length(C.qreg)
+    if ((max(controls)>a) || (target>a)) || ((min(controls)<=0) || (target<=0))
+        error("The target and control qubits must all lie within the register!")
+    end
+
+    for i in 1:b
+        CX!(C,controls[i],target)
+    end
+end
+
 function Swap!(C::Circuit,b1::Int,b2::Int)
     #quick and dirty implmentation of Swap Gate
     a = length(C.qreg)
@@ -301,6 +340,7 @@ function Swap!(C::Circuit,b1::Int,b2::Int)
         error("This ins't really a swap, you just tried to swap a qubit with itself!")
     elseif ((b1>a) || (b2>a)) || ((b1<=0) || (b2<=0))
         error("Both bits must be within the size of the register!")
+    end
     CX!(C,b2,b1)
     CX!(C,b1,b2)
     CX!(C,b2,b1)

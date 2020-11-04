@@ -44,6 +44,40 @@ end
 
 ######Single qubit gates ###########
 
+function Ugate!(C::Circuit, U::AbstractArray{ComplexF64,2}, bitpos::Int)
+    #=Implementation that adds the new matrix into the gates field 
+    of the circuit=#
+    a = length(C.qreg)
+    if (bitpos>a) || (bitpos<=0)
+        error("The bit specified must be within the register of the circuit!")
+    end
+    Uf = sparse(U)
+    M = similar(Uf)
+    I2 = sparse(I*(1.0+0.0*im),2,2)
+    for  i ∈ 1:a
+        if (i == 1) && (i !== bitpos)
+            copy!(M,I2)
+        elseif (i == 1) && (i == bitpos)
+            copy!(M,Uf)
+        else  
+            if (i == bitpos)
+                M = kron(Uf,M)
+            else
+                M = kron(I2,M)
+            end
+        end
+    end
+   return push!(C.gates, M)
+end
+
+function Ugate!(C::Circuit, U::AbstractArray{ComplexF64,2}, set::AbstractVector{Int})
+    #=Implementation that gives user ability to define 
+    a range of qubits to affect with the specified gate=#
+    for i in set
+        Ugate!(C,U,i)
+    end
+end
+
 function H!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
@@ -76,40 +110,6 @@ function H!(C::Circuit, set::AbstractVector{Int})
     a range of qubits to affect with the specified gate=#
     for i in set
         H!(C,i)
-    end
-end
-
-function Ugate!(C::Circuit, U::AbstractArray{ComplexF64,2}, bitpos::Int)
-    #=Implementation that adds the new matrix into the gates field 
-    of the circuit=#
-    a = length(C.qreg)
-    if (bitpos>a) || (bitpos<=0)
-        error("The bit specified must be within the register of the circuit!")
-    end
-    Uf = sparse(U)
-    M = similar(Uf)
-    I2 = sparse(I*(1.0+0.0*im),2,2)
-    for  i ∈ 1:a
-        if (i == 1) && (i !== bitpos)
-            copy!(M,I2)
-        elseif (i == 1) && (i == bitpos)
-            copy!(M,Uf)
-        else  
-            if (i == bitpos)
-                M = kron(Uf,M)
-            else
-                M = kron(I2,M)
-            end
-        end
-    end
-   return push!(C.gates, M)
-end
-
-function Ugate!(C::Circuit, U::AbstractArray{ComplexF64,2}, set::AbstractVector{Int})
-    #=Implementation that gives user ability to define 
-    a range of qubits to affect with the specified gate=#
-    for i in set
-        Ugate!(C,U,i)
     end
 end
 
@@ -560,5 +560,27 @@ end
 function shots(C::Circuit, nshots::Int)
     
     finalket = Run_circ(C)
+    ntrials = rand(nshots)
+    ensemble = zeros(Int,length(finalket))
+    trials!(ensemble, finalket, ntrials)
+end
 
+function trials!(ensemble::AbstractVector{Int}, ket::AbstractVector{ComplexF64}, probs::AbstractVector{Float64})
+    nshots = length(probs)
+
+    @inbounds for j ∈ 1:nshots
+        local p = probs[j]
+        local sumold = 0.0
+        local sumnew = 0.0 
+        
+        @inbounds for i ∈ 1:length(ket)
+            sumnew = sumold + real(conj(ket[i])*ket[i])
+            if (p<=sumnew)
+                ensemble[i] += 1
+                break
+            end
+            sumold = sumnew
+        end
+    end
+    return ensemble
 end

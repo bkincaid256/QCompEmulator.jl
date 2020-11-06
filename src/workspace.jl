@@ -94,7 +94,7 @@ function U!(C::Circuit, U::AbstractSparseArray{ComplexF64,Int}, bitpos::Int)
     end
    return push!(C.gates, M)
 end
-
+##Specialized methods for doing multiple gates sequentially
 function U!(C::Circuit, U::AbstractArray{ComplexF64,2}, set::AbstractVector{Int})
     #=Implementation that gives user ability to define 
     a range of qubits to affect with the specified gate=#
@@ -114,184 +114,88 @@ end
 function H!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
-    a = length(C.qreg)
-    if (bitpos>a) || (bitpos<=0)
-        error("The bit specified must be within the register of the circuit!")
-    end
-    H =  sparse([1/sqrt(2)+0.0*im  1/sqrt(2)+0.0*im
-                 1/sqrt(2)+0.0*im -1/sqrt(2)+0.0*im]) 
-    M = similar(H)
-    I2 = sparse(I*(1.0+0.0*im),2,2)
-    for  i ∈ 1:a
-        if (i == 1) && (i !== bitpos)
-            copy!(M,I2)
-        elseif (i == 1) && (i == bitpos)
-            copy!(M,H)
-        else  
-            if (i == bitpos)
-                M = kron(H,M)
-            else
-                M = kron(I2,M)
-            end
-        end
-    end
-   return push!(C.gates, M)
+    H = sparse([1.0/sqrt(2)+0.0*im  1.0/sqrt(2)+0.0*im
+                1.0/sqrt(2)+0.0*im -1.0/sqrt(2)+0.0*im])
+    U!(C,H,bitpos)
 end
 
 function H!(C::Circuit, set::AbstractVector{Int})
     #=Implementation that gives user ability to define 
     a range of qubits to affect with the specified gate=#
-    for i in set
-        H!(C,i)
-    end
+    H = sparse([1.0/sqrt(2)+0.0*im  1.0/sqrt(2)+0.0*im
+                1.0/sqrt(2)+0.0*im -1.0/sqrt(2)+0.0*im])
+    U!(C,H,set)
 end
 
 function T!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
-    a = length(C.qreg)
-    if (bitpos>a) || (bitpos<=0)
-        error("The bit specified must be within the register of the circuit!")
-    end
     T = sparse([1.0+0.0*im  0.0+0.0*im
                 0.0+0.0*im  exp(im*π/4)]) 
-    M = similar(T)
-    I2 = sparse(I*(1.0+0.0*im),2,2)
-    for  i ∈ 1:a
-        if (i == 1) && (i !== bitpos)
-            copy!(M,I2)
-        elseif (i == 1) && (i == bitpos)
-            copy!(M,T)
-        else  
-            if (i == bitpos)
-                M = kron(T,M)
-            else
-                M = kron(I2,M)
-            end
-        end
-    end
-   return push!(C.gates, M)
+    U!(C,T,bitpos)
 end
 
 function T!(C::Circuit, set::AbstractVector{Int})
     #=Implementation that gives user ability to define 
     a range of qubits to affect with the specified gate=#
-    for i in set
-        T!(C,i)
-    end
+    T = sparse([1.0+0.0*im  0.0+0.0*im
+                0.0+0.0*im  exp(im*π/4)]) 
+    U!(C,T,set)
 end
 
 ######## Pauli Gates ##########
 function X!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
-    a = length(C.qreg)
-    if (bitpos>a) || (bitpos<=0)
-        error("The bit specified must be within the register of the circuit!")
-    end
     X = sparse([0.0+0.0*im  1.0+0.0*im
                 1.0+0.0*im  0.0+0.0*im]) 
-    M = similar(X)
-    I2 = sparse(I*(1.0+0.0*im),2,2)
-    for  i ∈ 1:a
-        if (i == 1) && (i !== bitpos)
-            copy!(M,I2)
-        elseif (i == 1) && (i == bitpos)
-            copy!(M,X)
-        else  
-            if (i == bitpos)
-                M = kron(X,M)
-            else
-                M = kron(I2,M)
-            end
-        end
-    end
-   return push!(C.gates, M)
+    U!(C,X,bitpos)
 end
 
 function X!(C::Circuit, set::AbstractVector{Int})
     #=Implementation that gives user ability to define 
     a range of qubits to affect with the specified gate=#
-    for i in set
-        X!(C,i)
-    end
+    X = sparse([0.0+0.0*im  1.0+0.0*im
+                1.0+0.0*im  0.0+0.0*im]) 
+    U!(C,X,set)
 end
 
 function Y!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
-    a = length(C.qreg)
-    if (bitpos>a) || (bitpos<=0)
-        error("The bit specified must be within the register of the circuit!")
-    end
     Y = sparse([0.0+0.0*im  0.0-1.0*im
                 0.0+1.0*im  0.0+0.0*im]) 
-    M = similar(Y)
-    I2 = sparse(I*(1.0+0.0*im),2,2)
-    for  i ∈ 1:a
-        if (i == 1) && (i !== bitpos)
-            copy!(M,I2)
-        elseif (i == 1) && (i == bitpos)
-            copy!(M,Y)
-        else  
-            if (i == bitpos)
-                M = kron(Y,M)
-            else
-                M = kron(I2,M)
-            end
-        end
-    end
-   return push!(C.gates, M)
+    U!(C,Y,bitpos)
 end
 
 function Y!(C::Circuit, set::AbstractVector{Int})
     #=Implementation that gives user ability to define 
     a range of qubits to affect with the specified gate=#
-    for i in set
-        Y!(C,i)
-    end
+    Y = sparse([0.0+0.0*im  0.0-1.0*im
+                0.0+1.0*im  0.0+0.0*im]) 
+    U!(C,Y,set)
 end
 
 function Z!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#
-    a = length(C.qreg)
-    if (bitpos>a) || (bitpos<=0)
-        error("The bit specified must be within the register of the circuit!")
-    end
     Z = sparse([1.0+0.0*im  0.0+0.0*im
                 0.0+0.0*im -1.0+0.0*im]) 
-    M = similar(Z)
-    I2 = sparse(I*(1.0+0.0*im),2,2)
-    for  i ∈ 1:a
-        if (i == 1) && (i !== bitpos)
-            copy!(M,I2)
-        elseif (i == 1) && (i == bitpos)
-            copy!(M,Z)
-        else  
-            if (i == bitpos)
-                M = kron(Z,M)
-            else
-                M = kron(I2,M)
-            end
-        end
-    end
-   return push!(C.gates, M)
+    U!(C,Z,bitpos)
 end
 
 function Z!(C::Circuit, set::AbstractVector{Int})
     #=Implementation that gives user ability to define 
     a range of qubits to affect with the specified gate=#
-    for i in set
-        Z!(C,i)
-    end
+    Z = sparse([1.0+0.0*im  0.0+0.0*im
+                0.0+0.0*im -1.0+0.0*im]) 
+    U!(C,Z,set)
 end
 
 ############# Controlled Gates and 2 qubit Gates#############
-function CX!(C::Circuit,control::Int,target::Int)
-    #Implentation of CNOT gate using Kronnecker products.
-    X = sparse([0.0+0.0*im 1.0+0.0*im;
-                1.0+0.0*im 0.0+0.0*im])
+function CU!(C::Circuit, U::AbstractArray{ComplexF64,2},control::Int,target::Int)
+    #Implentation of CU gate using Kronnecker products.
+    Uf = sparse(U)
 
     a = length(C.qreg)
 
@@ -316,7 +220,7 @@ function CX!(C::Circuit,control::Int,target::Int)
             if (i==control)
                 M1 = conket1
             elseif (i==target)
-                M1 = X
+                M1 = Uf
             else
                 M1 = I2
             end
@@ -324,7 +228,7 @@ function CX!(C::Circuit,control::Int,target::Int)
             if (i==control)
                 M1 = kron(conket1,M1)
             elseif (i==target)
-                M1 = kron(X,M1)
+                M1 = kron(Uf,M1)
             else
                 M1 = kron(I2,M1)
             end
@@ -346,11 +250,109 @@ function CX!(C::Circuit,control::Int,target::Int)
         end
     end
     return push!(C.gates,M1+M2)
-
 end
 
-function CX!(C::Circuit,controls::AbstractVector{Int},targets::AbstractVector{Int})
-    #convenience method for doing mutliple CX operations at a time.
+function CU!(C::Circuit, U::AbstractSparseArray{ComplexF64,Int},control::Int,target::Int)
+    #Implentation of CU gate using Kronnecker products.
+    a = length(C.qreg)
+
+    if (target==control)
+        error("Target qubit and control qubit must be Different!")
+    elseif ((target>a) || (control>a)) || ((target<=0) || (control<=0)) 
+        error("The target and control qubit must be within the size of the register!")
+    end
+
+    M1 = spzeros(ComplexF64,2,2)
+    M2 = copy(M1)
+    I2 = sparse(I*(1.0+0.0*im),2,2)
+
+    conket1 = sparse([0.0+0.0*im 0.0+0.0*im;
+                      0.0+0.0*im 1.0+0.0*im])
+    conket0 = sparse([1.0+0.0*im 0.0+0.0*im
+                      0.0+0.0*im 0.0+0.0*im])
+
+    for i ∈ 1:a
+
+        if (i==1)
+            if (i==control)
+                M1 = conket1
+            elseif (i==target)
+                M1 = U
+            else
+                M1 = I2
+            end
+        else
+            if (i==control)
+                M1 = kron(conket1,M1)
+            elseif (i==target)
+                M1 = kron(U,M1)
+            else
+                M1 = kron(I2,M1)
+            end
+        end
+    end
+
+    for i ∈ 1:a
+
+        if (i==1==control)
+            M2 = conket0
+        elseif (i==1!==control)
+            M2 = I2
+        else
+            if (i==control)
+                M2 = kron(conket0,M2)
+            else
+                M2 = kron(I2,M2)
+            end
+        end
+    end
+    return push!(C.gates,M1+M2)
+end
+###Methods for doing a number of gates in a row
+function CU!(C::Circuit,U::AbstractArray{ComplexF64,2},controls::AbstractVector{Int},targets::AbstractVector{Int})
+    #convenience method for doing mutliple CU operations at a time.
+    a = length(C.qreg)
+    b = length(controls)
+    if length(targets)!==b
+        error("The set of controls and targets must be the same length or the operation is ambiguous.")
+    elseif ((max(controls)>a) || (max(targets)>a)) || ((min(controls)<=0) || (min(targets)<=0))
+        error("The target and control qubits must all lie within the register!")
+    end
+
+    Uf = sparse(U)
+    for i in 1:b
+        CU!(C,Uf,controls[i],targets[i])
+    end
+end
+
+function CU!(C::Circuit,U::AbstractArray{ComplexF64,2},control::Int,targets::AbstractVector{Int})
+    #convenience method for doing mutliple CU operations at a time.
+    a = length(C.qreg)
+    if ((control>a) || (max(targets)>a)) || ((control<=0) || (min(targets)<=0))
+        error("The target and control qubits must all lie within the register!")
+    end
+
+    Uf = sparse(U)
+    for i in targets
+        CU!(C,Uf,control,i)
+    end
+end
+
+function CU!(C::Circuit,U::AbstractArray{ComplexF64,2},controls::AbstractVector{Int},target::Int)
+    #convenience method for doing mutliple CU operations at a time.
+    a = length(C.qreg)
+    if ((max(controls)>a) || (target>a)) || ((min(controls)<=0) || (target<=0))
+        error("The target and control qubits must all lie within the register!")
+    end
+
+    Uf = sparse(U)
+    for i in controls
+        CU!(C,Uf,i,target)
+    end
+end
+
+function CU!(C::Circuit,U::AbstractSparseArray{ComplexF64,Int},controls::AbstractVector{Int},targets::AbstractVector{Int})
+    #convenience method for doing mutliple CU operations at a time.
     a = length(C.qreg)
     b = length(controls)
     if length(targets)!==b
@@ -360,32 +362,96 @@ function CX!(C::Circuit,controls::AbstractVector{Int},targets::AbstractVector{In
     end
 
     for i in 1:b
-        CX!(C,controls[i],targets[i])
+        CU!(C,U,controls[i],targets[i])
     end
 end
 
-function CX!(C::Circuit,control::Int,targets::AbstractVector{Int})
-    #convenience method for doing mutliple CX operations at a time.
+function CU!(C::Circuit,U::AbstractSparseArray{ComplexF64,Int},control::Int,targets::AbstractVector{Int})
+    #convenience method for doing mutliple CU operations at a time.
     a = length(C.qreg)
     if ((control>a) || (max(targets)>a)) || ((control<=0) || (min(targets)<=0))
         error("The target and control qubits must all lie within the register!")
     end
 
     for i in targets
-        CX!(C,control,i)
+        CU!(C,U,control,i)
     end
 end
 
-function CX!(C::Circuit,controls::AbstractVector{Int},target::Int)
-    #convenience method for doing mutliple CX operations at a time.
+function CU!(C::Circuit,U::AbstractSparseArray{ComplexF64,Int},controls::AbstractVector{Int},target::Int)
+    #convenience method for doing mutliple CU operations at a time.
     a = length(C.qreg)
     if ((max(controls)>a) || (target>a)) || ((min(controls)<=0) || (target<=0))
         error("The target and control qubits must all lie within the register!")
     end
 
     for i in controls
-        CX!(C,i,target)
+        CU!(C,U,i,target)
     end
+end
+
+function CX!(C::Circuit,control::Int,target::Int)
+    #Implentation of CNOT gate using Kronnecker products.
+    X = sparse([0.0+0.0*im 1.0+0.0*im;
+                1.0+0.0*im 0.0+0.0*im])
+
+    CU!(C,X,control,target)
+end
+
+function CX!(C::Circuit,controls::AbstractVector{Int},targets::AbstractVector{Int})
+    #convenience method for doing mutliple CX operations at a time.
+    X = sparse([0.0+0.0*im 1.0+0.0*im;
+                1.0+0.0*im 0.0+0.0*im])
+
+    CU!(C,X,controls,targets)
+end
+
+function CX!(C::Circuit,control::Int,targets::AbstractVector{Int})
+    #convenience method for doing mutliple CX operations at a time.
+    X = sparse([0.0+0.0*im 1.0+0.0*im;
+                1.0+0.0*im 0.0+0.0*im])
+
+    CU!(C,X,control,targets)
+end
+
+function CX!(C::Circuit,controls::AbstractVector{Int},target::Int)
+    #convenience method for doing mutliple CX operations at a time.
+    X = sparse([0.0+0.0*im 1.0+0.0*im;
+                1.0+0.0*im 0.0+0.0*im])
+
+    CU!(C,X,controls,target)
+end
+
+function CZ!(C::Circuit,control::Int,target::Int)
+    #Implentation of CZ gate using Kronnecker products.
+    Z = sparse([1.0+0.0*im  0.0+0.0*im;
+                0.0+0.0*im -1.0+0.0*im])
+
+    CU!(C,Z,control,target)
+end
+
+function CZ!(C::Circuit,controls::AbstractVector{Int},targets::AbstractVector{Int})
+    #convenience method for doing mutliple CZ operations at a time.
+    Z = sparse([1.0+0.0*im  0.0+0.0*im;
+                0.0+0.0*im -1.0+0.0*im])
+
+    CU!(C,Z,controls,targets)
+end
+
+function CZ!(C::Circuit,control::Int,targets::AbstractVector{Int})
+    #convenience method for doing mutliple CZ operations at a time.
+    Z = sparse([1.0+0.0*im  0.0+0.0*im;
+                0.0+0.0*im -1.0+0.0*im])
+
+    CU!(C,Z,control,targets)
+end
+
+function CZ!(C::Circuit,controls::AbstractVector{Int},target::Int)
+    #convenience method for doing mutliple CZ operations at a time.
+    Z = sparse([1.0+0.0*im  0.0+0.0*im;
+                0.0+0.0*im -1.0+0.0*im])
+
+    CU!(C,Z,controls,target)
 end
 
 function Swap!(C::Circuit,b1::Int,b2::Int)
@@ -399,67 +465,6 @@ function Swap!(C::Circuit,b1::Int,b2::Int)
     CX!(C,b2,b1)
     CX!(C,b1,b2)
     CX!(C,b2,b1)
-end
-
-function CZ!(C::Circuit,control::Int,target::Int)
-    #Implentation of CZ gate using Kronnecker products.
-    Z = sparse([1.0+0.0*im  0.0+0.0*im;
-                0.0+0.0*im -1.0+0.0*im])
-
-    a = length(C.qreg)
-
-    if (target==control)
-        error("Target qubit and control qubit must be Different!")
-    elseif ((target>a) || (control>a)) || ((target<=0) || (control<=0)) 
-        error("The target and control qubit must be within the size of the register!")
-    end
-
-    M1 = spzeros(ComplexF64,2,2)
-    M2 = copy(M1)
-    I2 = sparse(I*(1.0+0.0*im),2,2)
-
-    conket1 = sparse([0.0+0.0*im 0.0+0.0*im;
-                      0.0+0.0*im 1.0+0.0*im])
-    conket0 = sparse([1.0+0.0*im 0.0+0.0*im
-                      0.0+0.0*im 0.0+0.0*im])
-
-    for i ∈ 1:a
-
-        if (i==1)
-            if (i==control)
-                M1 = conket1
-            elseif (i==target)
-                M1 = Z
-            else
-                M1 = I2
-            end
-        else
-            if (i==control)
-                M1 = kron(conket1,M1)
-            elseif (i==target)
-                M1 = kron(Z,M1)
-            else
-                M1 = kron(I2,M1)
-            end
-        end
-    end
-
-    for i ∈ 1:a
-
-        if (i==1==control)
-            M2 = conket0
-        elseif (i==1!==control)
-            M2 = I2
-        else
-            if (i==control)
-                M2 = kron(conket0,M2)
-            else
-                M2 = kron(I2,M2)
-            end
-        end
-    end
-    return push!(C.gates,M1+M2)
-
 end
 
 function CCX!(C::Circuit,c1::Int,c2::Int,target::Int)

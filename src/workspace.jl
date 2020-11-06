@@ -584,3 +584,12 @@ function trials!(ensemble::AbstractVector{Int}, ket::AbstractVector{ComplexF64},
     end
     return ensemble
 end
+
+function graph(data::AbstractVector)
+    pyplot()
+    max = length(data)-1
+    nqubits = convert(Int,log(2,max+1))
+    xs = [string(i,base=2,pad=nqubits) for i ∈ 0:max]
+
+    bar(xs,data)
+end

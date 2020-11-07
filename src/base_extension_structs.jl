@@ -48,11 +48,11 @@ function Run_circ(C::Circuit)
 
     M = copy(C.gates[1])
     ket = copy(C.qreg[1].vec)
-    for i ∈ 2:maxbit
+    @inbounds for i ∈ 2:maxbit
     ket = kron(C.qreg[i].vec,ket)
     end
 
-    for i ∈ 2:maxiter
+    @inbounds for i ∈ 2:maxiter
         M .= C.gates[i]*M
     end
 
@@ -67,13 +67,13 @@ function shots(C::Circuit,nshots::Int)
     trials!(ensemble, finalket, ntrials)
 end
 
-function shots(C::Circuit, nqubit::Int,nshots::Int)
-    
-    finalket = Run_circ(C)
-    ntrials = rand(nshots)
-    ensemble = zeros(Int,length(finalket))
-    trials!(ensemble, finalket, ntrials)
-end
+#function shots(C::Circuit,nqubits::AbstractVector{Int},nshots::Int)
+#    
+#    finalket = Run_circ(C)
+#    ntrials = rand(nshots)
+#    ensemble = zeros(Int,length(finalket))
+#    trials!(ensemble, finalket, ntrials)
+#end
 
 function trials!(ensemble::AbstractVector{Float64}, ket::AbstractVector{ComplexF64}, probs::AbstractVector{Float64})
     nshots = length(probs)
@@ -95,32 +95,33 @@ function trials!(ensemble::AbstractVector{Float64}, ket::AbstractVector{ComplexF
     return ensemble
 end
 
-function trials!(ensemble::AbstractVector{Float64}, ket::AbstractVector{ComplexF64}, nqubit::Int, probs::AbstractVector{Float64})
-    nshots = length(probs)
+#function trials!(ensemble::AbstractVector{Float64}, ket::AbstractVector{ComplexF64}, nqubits::AnstractVector{Int}, probs::AbstractVector{Float64})
+#    nshots = length(probs)
+#
+#    @inbounds for j ∈ 1:nshots
+#        local p = probs[j]
+#        local sumold = 0.0
+#        local sumnew = 0.0 
+#        
+#        @inbounds for i ∈ 1:length(ket)
+#            sumnew = sumold + real(conj(ket[i])*ket[i])
+#            if (p<=sumnew)
+#                ensemble[i] += 1.0
+#                break
+#            end
+#            sumold = sumnew
+#        end
+#    end
+#    return ensemble
+#end
 
-    @inbounds for j ∈ 1:nshots
-        local p = probs[j]
-        local sumold = 0.0
-        local sumnew = 0.0 
-        
-        @inbounds for i ∈ 1:length(ket)
-            sumnew = sumold + real(conj(ket[i])*ket[i])
-            if (p<=sumnew)
-                ensemble[i] += 1.0
-                break
-            end
-            sumold = sumnew
-        end
-    end
-    return ensemble
-end
-
-function graph(data::AbstractVector)
+function graph!(data::AbstractVector)
     pyplot()
-    normalize!(data)
+    data .= data./sum(data)
     max = length(data)-1
     nqubits = convert(Int,log(2,max+1))
     xs = [string(i,base=2,pad=nqubits) for i ∈ 0:max]
-
-    bar(xs,data, leg=false, title="Simulation of Circuit", xlabel="qubit readout", ylabel="Probabilities", dpi = 300)
+    pl = bar(xs, data, leg=false, title="Simulation of Circuit", xlabel="qubit readout", 
+    ylabel="Probabilities", xtickfontrotation = 60, dpi = 300)
+    gui()
 end

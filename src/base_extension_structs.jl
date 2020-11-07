@@ -22,26 +22,6 @@ function makeregister(nqubits::Int)
     return [Qubit(i, copy(zerovec)) for i ∈ 1:nqubits]
 end
 
-function Base.max(set::AbstractRange)
-    if set[1]<set[end]
-        return set[end]
-    elseif set[1]>set[end]
-        return set[1]
-    else
-        return set[1]
-    end
-end
-
-function Base.min(set::AbstractRange)
-    if set[1]<set[end]
-        return set[1]
-    elseif set[1]>set[end]
-        return set[end]
-    else
-        return set[1]
-    end
-end
-
 ########## Running the Circuit ###########
 function Run_circ(C::Circuit)
 

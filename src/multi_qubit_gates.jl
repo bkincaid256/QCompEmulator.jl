@@ -181,7 +181,7 @@ function CU!(C::Circuit,U::AbstractArray{ComplexF64,2},controls::AbstractVector{
     b = length(controls)
     if length(targets)!==b
         error("The set of controls and targets must be the same length or the operation is ambiguous.")
-    elseif ((max(controls)>a) || (max(targets)>a)) || ((min(controls)<=0) || (min(targets)<=0))
+    elseif ((maximum(controls)>a) || (maximum(targets)>a)) || ((minimum(controls)<=0) || (minimum(targets)<=0))
         error("The target and control qubits must all lie within the register!")
     end
 
@@ -194,7 +194,7 @@ end
 function CU!(C::Circuit,U::AbstractArray{ComplexF64,2},control::Int,targets::AbstractVector{Int})
     #convenience method for doing mutliple CU operations at a time.
     a = length(C.qreg)
-    if ((control>a) || (max(targets)>a)) || ((control<=0) || (min(targets)<=0))
+    if ((control>a) || (maximum(targets)>a)) || ((control<=0) || (minimum(targets)<=0))
         error("The target and control qubits must all lie within the register!")
     end
 
@@ -207,7 +207,7 @@ end
 function CU!(C::Circuit,U::AbstractArray{ComplexF64,2},controls::AbstractVector{Int},target::Int)
     #convenience method for doing mutliple CU operations at a time.
     a = length(C.qreg)
-    if ((max(controls)>a) || (target>a)) || ((min(controls)<=0) || (target<=0))
+    if ((maximum(controls)>a) || (target>a)) || ((minimum(controls)<=0) || (target<=0))
         error("The target and control qubits must all lie within the register!")
     end
 
@@ -223,7 +223,7 @@ function CU!(C::Circuit,U::AbstractSparseArray{ComplexF64,Int},controls::Abstrac
     b = length(controls)
     if length(targets)!==b
         error("The set of controls and targets must be the same length or the operation is ambiguous.")
-    elseif ((max(controls)>a) || (max(targets)>a)) || ((min(controls)<=0) || (min(targets)<=0))
+    elseif ((maximum(controls)>a) || (maximum(targets)>a)) || ((minimum(controls)<=0) || (minimum(targets)<=0))
         error("The target and control qubits must all lie within the register!")
     end
 
@@ -235,7 +235,7 @@ end
 function CU!(C::Circuit,U::AbstractSparseArray{ComplexF64,Int},control::Int,targets::AbstractVector{Int})
     #convenience method for doing mutliple CU operations at a time.
     a = length(C.qreg)
-    if ((control>a) || (max(targets)>a)) || ((control<=0) || (min(targets)<=0))
+    if ((control>a) || (maximum(targets)>a)) || ((control<=0) || (minimum(targets)<=0))
         error("The target and control qubits must all lie within the register!")
     end
 
@@ -247,7 +247,7 @@ end
 function CU!(C::Circuit,U::AbstractSparseArray{ComplexF64,Int},controls::AbstractVector{Int},target::Int)
     #convenience method for doing mutliple CU operations at a time.
     a = length(C.qreg)
-    if ((max(controls)>a) || (target>a)) || ((min(controls)<=0) || (target<=0))
+    if ((maximum(controls)>a) || (target>a)) || ((minimum(controls)<=0) || (target<=0))
         error("The target and control qubits must all lie within the register!")
     end
 
@@ -262,7 +262,7 @@ function CU!(C::Circuit,λ::Float64,controls::AbstractVector{Int},targets::Abstr
     b = length(controls)
     if length(targets)!==b
         error("The set of controls and targets must be the same length or the operation is ambiguous.")
-    elseif ((max(controls)>a) || (max(targets)>a)) || ((min(controls)<=0) || (min(targets)<=0))
+    elseif ((maximum(controls)>a) || (maximum(targets)>a)) || ((minimum(controls)<=0) || (minimum(targets)<=0))
         error("The target and control qubits must all lie within the register!")
     end
 
@@ -274,7 +274,7 @@ end
 function CU!(C::Circuit,λ::Float64,control::Int,targets::AbstractVector{Int})
     #convenience method for doing mutliple CU operations at a time.
     a = length(C.qreg)
-    if ((control>a) || (max(targets)>a)) || ((control<=0) || (min(targets)<=0))
+    if ((control>a) || (maximum(targets)>a)) || ((control<=0) || (minimum(targets)<=0))
         error("The target and control qubits must all lie within the register!")
     end
 
@@ -286,7 +286,7 @@ end
 function CU!(C::Circuit,λ::Float64,controls::AbstractVector{Int},target::Int)
     #convenience method for doing mutliple CU operations at a time.
     a = length(C.qreg)
-    if ((max(controls)>a) || (target>a)) || ((min(controls)<=0) || (target<=0))
+    if ((maximum(controls)>a) || (target>a)) || ((minimum(controls)<=0) || (target<=0))
         error("The target and control qubits must all lie within the register!")
     end
 

@@ -31,7 +31,7 @@ qft_dagger!(qpe,4)
 data = shots(qpe,10_000)
 graph!(data)
 
-#qpe2
+##qpe2
 qpe2 = Circuit(4)
 
 X!(qpe2,4)
@@ -49,3 +49,22 @@ end
 qft_dagger!(qpe2,4)
 data2 = shots(qpe2,10_000)
 graph!(data2)
+
+
+##qpe3
+qpe3 = Circuit(6)
+
+H!(qpe3,1:5)
+X!(qpe3,6)
+
+reps = 1
+for counting_qubit ∈ 1:5
+    for i ∈ 1:reps
+        CU!(qpe3, λ2, counting_qubit, 6)
+    end
+    reps *= 2
+end
+
+qft_dagger!(qpe3, 6)
+data3 = shots(qpe3,10_000)
+graph!(data3)

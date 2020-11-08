@@ -122,6 +122,7 @@ function graph!(data::AbstractVector)
     nqubits = convert(Int,log(2,max+1))
     xs = [string(i,base=2,pad=nqubits) for i ∈ 0:max]
     pl = bar(xs, data, leg=false, title="Simulation of Circuit", xlabel="qubit readout", 
-    ylabel="Probabilities", xtickfontrotation = 60, dpi = 300)
+    ylabel="Probabilities", xtickfontrotation = 70, dpi = 300, xticks = :all,
+    yticks = 0.0:0.05:1.0, grid = :y, minorticks = 2, gridtyle = :dash)
     gui()
 end

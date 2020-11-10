@@ -105,6 +105,42 @@ function U!(C::Circuit, λ::Float64, set::AbstractVector{Int})
     end
 end
 
+function Udagger!(C::Circuit, λ::Float64, bitpos::Int)
+    #=Implementation that adds the new matrix into the gates field 
+    of the circuit=#
+
+    U = sparse([1.0  0.0
+                0.0  conj(exp(im*λ))])
+    a = length(C.qreg)
+    if (bitpos>a) || (bitpos<=0)
+        error("The bit specified must be within the register of the circuit!")
+    end
+    M = similar(U)
+    I2 = sparse(I*(1.0+0.0*im),2,2)
+    for  i ∈ 1:a
+        if (i == 1) && (i !== bitpos)
+            copy!(M,I2)
+        elseif (i == 1) && (i == bitpos)
+            copy!(M,U)
+        else  
+            if (i == bitpos)
+                M = kron(U,M)
+            else
+                M = kron(I2,M)
+            end
+        end
+    end
+   return push!(C.gates, M)
+end
+
+##Specialized methods for doing multiple gates sequentially
+function Udagger!(C::Circuit, λ::Float64, set::AbstractVector{Int})
+    #=Implementation that gives user ability to define 
+    a range of qubits to affect with the specified gate=#
+    for i in set
+        Udagger!(C,λ,i)
+    end
+end
 function H!(C::Circuit, bitpos::Int)
     #=Implementation that adds the new matrix into the gates field 
     of the circuit=#

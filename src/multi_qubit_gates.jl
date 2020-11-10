@@ -480,3 +480,10 @@ function CCX!(C::Circuit,c1::Int,c2::Int,target::Int)
     return push!(C.gates,M1+M2+M3+M4)
 
 end
+
+function CSwap!(C::Circuit,control,bit1,bit2)
+    #Controlled swap for order finding algorithm
+    CX!(C,bit2,bit1)
+    CCX!(C,control,bit1,bit2)
+    CX!(C,bit2,bit1)
+end
